@@ -13,28 +13,16 @@
 #include <curlpp/Options.hpp>
 
 #include "TelegramAPI/User.h"
-#include "TelegramAPI/ApiResponse.h"
+#include "TelegramAPI/Chats.h"
+#include "TelegramAPI/Session.h"
+#include "TelegramAPI/GetChat.h"
 
-const CX::String query = "https://api.telegram.org/bot742829295:AAH0Kn22eUYDPAegXsLc7YmsdUsKaMN6N6M/getMe";
-
+const CX::String query = "https://api.telegram.org/bot752829295:AAH0Kn22eUYDPAegXsLc7YmsdUsKaMN6N6M/getChat?chat_id=359969336";
 int main(int argc, const char * argv[]) {
     std::cout << "TGBot running" << std::endl;
-    cURLpp::initialize();
-    cURLpp::Easy hEasy;
-    std::stringstream result;
-    hEasy.setOpt(cURLpp::Options::Url(query));
-    hEasy.setOpt(cURLpp::Options::Proxy("http://143.0.111.138:3128"));
-    hEasy.setOpt(cURLpp::Options::WriteStream(&result));
-    std::cout << "TGBot performing" << std::endl;
-    hEasy.perform();
-    
-    auto res = tg::ApiResponse<tg::User>::CXFromJSON(result.str());
-    if(res.ok())
-        std::cout << res.get().CXToJSON() << std::endl;
-    else
-        std::cout << "TGAPI request failed: " << res.errcode() << " " << res.errdesc() << std::endl;
-    
-    cURLpp::terminate();
+    tg::Session sess("752829295:AAH0Kn22eUYDPAegXsLc7YmsdUsKaMN6N6M");
+    auto chat = sess.Query(tg::Actions::GetChat(359969336));
+    std::cout << chat.CXToJSON() << std::endl;
     
     return 0;
 }

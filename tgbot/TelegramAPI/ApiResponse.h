@@ -8,31 +8,31 @@
 
 #ifndef APIResponse_h
 #define APIResponse_h
-#include "../CXFramework/Object.h"
-#include "../CXFramework/Properties.h"
+#include "CXFramework/Object.h"
+#include "CXFramework/Properties.h"
 
 namespace tg
 {
     cxclass_templated(ApiResponse, template<class T>)
     {
     public:
-        bool fOkay;
-        T fResult;
+        bool IsOkay;
+        T Result;
         
-        int fErrorCode = 200;
-        CX::String fErrorDesc = "OK";
+        int ErrorCode = 200;
+        cxstring ErrorDesc = "OK";
         
-        const bool ok() const { return fOkay; }
-        const T& get() const { return fResult; }
+        const bool ok() const { return IsOkay; }
+        const T& get() const { return Result; }
         
-        const int errcode() const { return fErrorCode; }
-        const CX::String& errdesc() const { return fErrorDesc; }
+        const int errcode() const { return ErrorCode; }
+        const cxstring& errdesc() const { return ErrorDesc; }
         
         cxprops(ApiResponse) (
-                              property(fOkay, "ok"),
-                              property(fResult, "result"),
-                              property(fErrorCode, "error_code"),
-                              property(fErrorDesc, "description")
+                              property(IsOkay, "ok"),
+                              property(Result, "result"),
+                              property(ErrorCode, "error_code"),
+                              property(ErrorDesc, "description")
         );
     };
 }

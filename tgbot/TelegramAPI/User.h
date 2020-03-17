@@ -8,36 +8,36 @@
 
 #ifndef User_h
 #define User_h
-#include "../CXFramework/Object.h"
-#include "../CXFramework/Properties.h"
-#include <stdint.h>
+#include <cstdint>
+#include "CXFramework/Object.h"
+#include "CXFramework/Properties.h"
 
 namespace tg
 {
     cxclass(User)
     {
     public:
-        uint64_t fID;
-        bool fIsBot;
-        CX::String fFirstName;
+        uint64_t ID;
+        bool IsBot;
+        cxstring FirstName;
         
-        CX::String fLastName = "";
-        CX::String fUsername = "Unknown";
-        CX::String fLanguage = "";
-        bool fCanJoinGroups = true;
-        bool fCanReadAllMessages = true;
-        bool fSupportsInlineQueries = false;
+        cxstring LastName = "";
+        cxstring Username = "Unknown";
+        cxstring Language = "";
+        bool CanJoinGroups = true;
+        bool CanReadAllMessages = true;
+        bool SupportsInlineQueries = false;
         
         cxprops(User) (
-                       property(fID, "id"),
-                       property(fIsBot, "is_bot"),
-                       property(fFirstName, "first_name"),
-                       property(fLastName, "last_name"),
-                       property(fUsername, "username"),
-                       property(fLanguage, "language_code"),
-                       property(fCanJoinGroups, "can_join_groups"),
-                       property(fCanReadAllMessages, "can_read_all_group_messages"),
-                       property(fSupportsInlineQueries, "supports_inline_queries")
+                       property(ID, "id"),
+                       property(IsBot, "is_bot"),
+                       property(FirstName, "first_name"),
+                       property(LastName, "last_name"),
+                       property(Username, "username"),
+                       property(Language, "language_code"),
+                       property(CanJoinGroups, "can_join_groups"),
+                       property(CanReadAllMessages, "can_read_all_group_messages"),
+                       property(SupportsInlineQueries, "supports_inline_queries")
         );
     };
 }
