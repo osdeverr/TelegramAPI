@@ -19,7 +19,6 @@ namespace CX
     {
     public:
         using Type = String;
-        using Methods = std::vector<CX::Reflection::ClassMethod>;
         
         virtual ~Object() {}
         virtual Type GetType() const = 0;

@@ -8,9 +8,9 @@
 
 #ifndef Properties_h
 #define Properties_h
+#include <exception>
 #include "String.h"
 #include "utils/json.hpp"
-#include "utils/typechecks.h"
 
 // Macros for convenience
 #define CXXREFLECT_INTERNAL_PLISTNAME __CXProperties // Name of the class static field
@@ -131,7 +131,46 @@ namespace CX
             constexpr auto DefineProperty(T Class::*member, const char* name) {
                 return PropertyImpl<Class, T>{member, name};
             }
+            
+            template <class T,typename = std::void_t<>>
+            struct IsCXReflectable : std::false_type {
+            };
+            template <class T>
+            struct IsCXReflectable<T,std::void_t<decltype(T::__CXProperties)>> : std::true_type {};
+            
+            template <class T,typename = std::void_t<>>
+            struct IsCXReference : std::false_type {
+            };
+            template <class T>
+            struct IsCXReference<T,std::void_t<decltype(T::__CXReference)>> : std::true_type {};
         }
+        
+        class NullReferenceException : public std::exception
+        {
+        public:
+            const char* what() { return "CX::Reflection::Reference used without being set"; };
+        };
+        // Reference for incomplete types
+        template<class T>
+        class Reference
+        {
+        public:
+            bool __CXReference = true; // ref marker
+            using ValueType = T;
+            
+            Reference() : mPointer(nullptr) {}
+            Reference(const Reference& ref) { if(ref.Exists()) { Create(); Set(ref); } }
+            
+            void Create() { if(!mPointer) mPointer = new T; }
+            bool Exists() const { return (mPointer != nullptr); }
+            
+            T& Get() { if(mPointer) return *mPointer; else throw NullReferenceException(); }
+            operator T&() { if(mPointer) return *mPointer; else throw NullReferenceException(); }
+            operator const T&() const { if(mPointer) return *mPointer; else throw NullReferenceException(); }
+            void Set(const T& val) { if(mPointer) *mPointer = val; else throw NullReferenceException(); }
+        private:
+            T* mPointer;
+        };
     }
 
     namespace Serialization
@@ -143,10 +182,23 @@ namespace CX
             {
                 nlohmann::json j;
                 cxenum_const(T, obj) {
-                    if constexpr(has_field<type>::value)
-                        j[name] = nlohmann::json::parse(Serialize<type>(value));
+                    if constexpr(Reflection::Internal::IsCXReference<type>::value)
+                    {
+                        if(!value.Exists()) return;
+                        using vtype = typename type::ValueType;
+                        
+                        if constexpr(Reflection::Internal::IsCXReflectable<vtype>::value)
+                            j[name] = nlohmann::json::parse(Serialize<vtype>(value));
+                        else
+                            j[name] = value;
+                    }
                     else
-                        j[name] = value;
+                    {
+                        if constexpr(Reflection::Internal::IsCXReflectable<type>::value)
+                            j[name] = nlohmann::json::parse(Serialize<type>(value));
+                        else
+                            j[name] = value;
+                    }
                 } cxenum_end;
                 return j.dump(4);
             }
@@ -159,10 +211,23 @@ namespace CX
                 cxenum(T, obj)
                 {
                     try {
-                        if constexpr(has_field<type>::value)
-                            value = Deserialize<type>(j.at(name).dump());
+                        if constexpr(Reflection::Internal::IsCXReference<type>::value)
+                        {
+                            value.Create();
+                            using vtype = typename type::ValueType;
+                            
+                            if constexpr(Reflection::Internal::IsCXReflectable<vtype>::value)
+                                value.Set(Deserialize<vtype>(j.at(name).dump()));
+                            else
+                                value = j.at(name).get<vtype>();
+                        }
                         else
-                            value = j.at(name).get<type>();
+                        {
+                            if constexpr(Reflection::Internal::IsCXReflectable<type>::value)
+                                value = Deserialize<type>(j.at(name).dump());
+                            else
+                                value = j.at(name).get<type>();
+                        }
                     } catch(...)
                     {
                         // ignore non existent fields
@@ -173,5 +238,7 @@ namespace CX
         }
     }
 }
+template<class T>
+using cxref = CX::Reflection::Reference<T>;
 
 #endif /* Properties_h */

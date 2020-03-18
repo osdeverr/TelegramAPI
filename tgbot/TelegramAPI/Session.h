@@ -64,7 +64,6 @@ namespace tg
             
             hEasy.setOpt(new curlpp::options::HttpHeader(header));
             hEasy.setOpt(new cURLpp::Options::Post(true));
-            hEasy.setOpt(new cURLpp::Options::Verbose(true));
             hEasy.setOpt(new cURLpp::Options::WriteStream(&result));
             hEasy.setOpt(new cURLpp::Options::PostFields(params));
             hEasy.setOpt(new cURLpp::Options::PostFieldSize(params.size()));
@@ -72,9 +71,13 @@ namespace tg
             
             auto response = ApiResponse<typename QueryType::_ReturnClass>::CXFromJSON(result.str());
             if(response.ok())
-                return response.get();
+            {
+                typename QueryType::_ReturnClass ret = response.get();
+                ret._pSession = this;
+                return ret;
+            }
             else
-                throw ApiException(response.errcode(), response.errdesc() + params);
+                throw ApiException(response.errcode(), response.errdesc());
         }
     private:
         cxstring mToken;

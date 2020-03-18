@@ -10,17 +10,17 @@
 #define GetChat_h
 #include "CXFramework/Object.h"
 #include "CXFramework/Properties.h"
-#include "Chats.h"
+#include "Internal.h"
 
 namespace tg
 {
-    namespace Actions
+    class Chat;
+    namespace Methods
     {
         cxclass(GetChat)
         {
         public:
-            static constexpr char _ApiFunction[] = "getChat";
-            typedef tg::Chat _ReturnClass;
+            TGAPI_METHOD("getChat", tg::Chat);
             GetChat() {}
             GetChat(const cxstring& chatUsername)
             {
@@ -29,7 +29,7 @@ namespace tg
                 else
                     ChatID = chatUsername;
             }
-            GetChat(const int64_t numID)
+            GetChat(const IDType numID)
             {
                 ChatID = std::to_string(numID);
             }

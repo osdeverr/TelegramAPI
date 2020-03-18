@@ -16,13 +16,26 @@
 #include "TelegramAPI/Chats.h"
 #include "TelegramAPI/Session.h"
 #include "TelegramAPI/GetChat.h"
+#include "TelegramAPI/SendMessage.h"
 
-const CX::String query = "https://api.telegram.org/bot752829295:AAH0Kn22eUYDPAegXsLc7YmsdUsKaMN6N6M/getChat?chat_id=359969336";
 int main(int argc, const char * argv[]) {
     std::cout << "TGBot running" << std::endl;
-    tg::Session sess("752829295:AAH0Kn22eUYDPAegXsLc7YmsdUsKaMN6N6M");
-    auto chat = sess.Query(tg::Actions::GetChat(359969336));
-    std::cout << chat.CXToJSON() << std::endl;
+    tg::Session sess("752829295:AAE2xJz7kTXdde4dbyPdfqW0mDaUWEvh4v8");
+    
+    try {
+        auto chat = sess.Query(tg::Methods::GetChat("@pubgrouptgcx"));
+        std::cout << chat.CXToJSON() << std::endl;
+        
+        while(true)
+        {
+            cxstring mesg;
+            std::getline(std::cin, mesg);
+            chat.Send(mesg);
+        }
+    } catch(tg::ApiException& e)
+    {
+        std::cerr << "tg::ApiException: " << e.what() << std::endl;
+    }
     
     return 0;
 }
