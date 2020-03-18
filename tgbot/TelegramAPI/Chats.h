@@ -12,7 +12,7 @@
 #include <ctime>
 #include <vector>
 #include "CXFramework/Object.h"
-#include "CXFramework/Properties.h"
+#include "CXFramework/Reflection.h"
 #include "Internal.h"
 #include "User.h"
 #include "Session.h"

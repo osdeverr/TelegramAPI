@@ -9,7 +9,7 @@
 #ifndef GetChat_h
 #define GetChat_h
 #include "CXFramework/Object.h"
-#include "CXFramework/Properties.h"
+#include "CXFramework/Reflection.h"
 #include "Internal.h"
 
 namespace tg

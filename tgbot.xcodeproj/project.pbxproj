@@ -32,7 +32,7 @@
 		5F78473224211F1A0025D877 /* debugbreak.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = debugbreak.h; sourceTree = "<group>"; };
 		5F78473524211F1A0025D877 /* Object.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Object.h; sourceTree = "<group>"; };
 		5F78473624211F1A0025D877 /* Stats.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Stats.h; sourceTree = "<group>"; };
-		5F78473724211F1A0025D877 /* Properties.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Properties.h; sourceTree = "<group>"; };
+		5F78473724211F1A0025D877 /* Reflection.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Reflection.h; sourceTree = "<group>"; };
 		5F78473824211F1A0025D877 /* Methods.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Methods.h; sourceTree = "<group>"; };
 		5F78473924211F1A0025D877 /* String.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = String.h; sourceTree = "<group>"; };
 		5F78473C24211F3D0025D877 /* User.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = User.h; sourceTree = "<group>"; };
@@ -94,7 +94,7 @@
 				5F78472F24211F1A0025D877 /* utils */,
 				5F78473524211F1A0025D877 /* Object.h */,
 				5F78473624211F1A0025D877 /* Stats.h */,
-				5F78473724211F1A0025D877 /* Properties.h */,
+				5F78473724211F1A0025D877 /* Reflection.h */,
 				5F78473824211F1A0025D877 /* Methods.h */,
 				5F78473924211F1A0025D877 /* String.h */,
 			);

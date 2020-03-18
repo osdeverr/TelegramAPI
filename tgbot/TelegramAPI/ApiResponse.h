@@ -9,7 +9,7 @@
 #ifndef APIResponse_h
 #define APIResponse_h
 #include "CXFramework/Object.h"
-#include "CXFramework/Properties.h"
+#include "CXFramework/Reflection.h"
 
 namespace tg
 {
