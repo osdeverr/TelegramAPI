@@ -26,6 +26,7 @@ int main(int argc, const char * argv[]) {
         while(true)
         {
             cxstring mesg;
+            std::cout << "@" << chat.Username << " > ";
             std::getline(std::cin, mesg);
             std::cout << chat.Send(mesg).CXToJSON() << std::endl;
         }
