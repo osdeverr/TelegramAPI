@@ -17,16 +17,16 @@ namespace tg
     cxclass(User)
     {
     public:
-        uint64_t ID;
-        bool IsBot;
-        cxstring FirstName;
+        cxopt<uint64_t> ID;
+        cxopt<bool> IsBot;
+        cxopt<cxstring> FirstName;
         
-        cxstring LastName = "";
-        cxstring Username = "Unknown";
-        cxstring Language = "";
-        bool CanJoinGroups = true;
-        bool CanReadAllMessages = true;
-        bool SupportsInlineQueries = false;
+        cxopt<cxstring> LastName;
+        cxopt<cxstring> Username;
+        cxopt<cxstring> Language;
+        cxopt<bool> CanJoinGroups;
+        cxopt<bool> CanReadAllMessages;
+        cxopt<bool> SupportsInlineQueries;
         
         cxprops(User) (
                        property(ID, "id"),

@@ -143,6 +143,12 @@ namespace CX
             };
             template <class T>
             struct IsCXReference<T,std::void_t<decltype(T::__CXReference)>> : std::true_type {};
+            
+            template <class T,typename = std::void_t<>>
+            struct IsCXOptional : std::false_type {
+            };
+            template <class T>
+            struct IsCXOptional<T,std::void_t<decltype(T::__CXOptional)>> : std::true_type {};
         }
         
         class NullReferenceException : public std::exception
@@ -150,7 +156,8 @@ namespace CX
         public:
             const char* what() { return "CX::Reflection::Reference used without being set"; };
         };
-        // Reference for incomplete types
+        
+        // Used for incomplete/mutual-reference types: do NOT set those manually and check whether they exist before reading
         template<class T>
         class Reference
         {
@@ -160,16 +167,41 @@ namespace CX
             
             Reference() : mPointer(nullptr) {}
             Reference(const Reference& ref) { if(ref.Exists()) { Create(); Set(ref); } }
+            // FIX MEMORY LEAKS HERE!
             
             void Create() { if(!mPointer) mPointer = new T; }
             bool Exists() const { return (mPointer != nullptr); }
             
-            T& Get() { if(mPointer) return *mPointer; else throw NullReferenceException(); }
+            T& operator()() { if(mPointer) return *mPointer; else throw NullReferenceException(); }
             operator T&() { if(mPointer) return *mPointer; else throw NullReferenceException(); }
             operator const T&() const { if(mPointer) return *mPointer; else throw NullReferenceException(); }
-            void Set(const T& val) { if(mPointer) *mPointer = val; else throw NullReferenceException(); }
+            void Set(const T& val) { Create(); *mPointer = val; }
         private:
             T* mPointer;
+        };
+        
+        // Optional fields for serialization: can be used as an ordinary value outside of
+        template<class T>
+        class Optional
+        {
+        public:
+            bool __CXOptional = true; // opt marker
+            using ValueType = T;
+            
+            Optional() : mExists(false), mValue() {}
+            Optional(const T& val) : mExists(true), mValue(val) {}
+            bool Exists() const { return mExists; }
+            Optional& operator=(T& val) { mExists = true; mValue = val; return *this; }
+            Optional& operator=(const T& val) { mExists = true; mValue = val; return *this; }
+            
+            void Set(const T& val) { mValue = val; mExists = true; }
+            
+            T& operator()() { return mValue; }
+            operator T&() { return mValue; }
+            operator const T&() const { return mValue; }
+        private:
+            bool mExists;
+            T mValue;
         };
     }
 
@@ -192,6 +224,16 @@ namespace CX
                         else
                             j[name] = value;
                     }
+                    else if constexpr(Reflection::Internal::IsCXOptional<type>::value)
+                    {
+                        if(!value.Exists()) return;
+                        using vtype = typename type::ValueType;
+                        
+                        if constexpr(Reflection::Internal::IsCXReflectable<vtype>::value)
+                            j[name] = nlohmann::json::parse(Serialize<vtype>(value));
+                        else
+                            j[name] = (vtype) value;
+                    }
                     else
                     {
                         if constexpr(Reflection::Internal::IsCXReflectable<type>::value)
@@ -213,6 +255,7 @@ namespace CX
                     try {
                         if constexpr(Reflection::Internal::IsCXReference<type>::value)
                         {
+                            j.at(name); // throws if there's no json node to deserialize, used to prevent the creation of useless nodes
                             value.Create();
                             using vtype = typename type::ValueType;
                             
@@ -220,6 +263,15 @@ namespace CX
                                 value.Set(Deserialize<vtype>(j.at(name).dump()));
                             else
                                 value = j.at(name).get<vtype>();
+                        }
+                        else if constexpr(Reflection::Internal::IsCXOptional<type>::value)
+                        {
+                            using vtype = typename type::ValueType;
+                            
+                            if constexpr(Reflection::Internal::IsCXReflectable<vtype>::value)
+                                value = (Deserialize<vtype>(j.at(name).dump()));
+                            else
+                                value = (j.at(name).get<vtype>());
                         }
                         else
                         {
@@ -240,5 +292,7 @@ namespace CX
 }
 template<class T>
 using cxref = CX::Reflection::Reference<T>;
+template<class T>
+using cxopt = CX::Reflection::Optional<T>;
 
 #endif /* Properties_h */

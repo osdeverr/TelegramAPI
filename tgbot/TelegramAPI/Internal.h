@@ -8,6 +8,8 @@
 
 #ifndef MethodsInternal_h
 #define MethodsInternal_h
+#include "CXFramework/Object.h"
+#include "CXFramework/Reflection.h"
 
 namespace tg {
     class Session;

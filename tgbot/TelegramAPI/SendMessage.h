@@ -23,15 +23,34 @@ namespace tg
             TGAPI_METHOD("sendMessage", tg::Message);
             
             SendMessage() {}
-            SendMessage(const cxstring& dest, const cxstring& text) : mDestination(dest), mMessageText(text) {}
-            SendMessage(const IDType dest, const cxstring& text) : mDestination(std::to_string(dest)), mMessageText(text) {}
+            SendMessage(
+                        const cxstring& dest,
+                        const cxstring& text,
+                        const cxopt<cxstring> parseMode = cxopt<cxstring>(),
+                        const cxopt<bool> noWebPreview = cxopt<bool>(),
+                        const cxopt<bool> silent = cxopt<bool>(),
+                        const cxopt<int> replyMessageID = cxopt<int>())
+                          : Destination(dest), MessageText(text),
+                            ParseMode(parseMode),DisableWebPreview(noWebPreview),
+                            SilentMessage(silent), ReplyMsgID(replyMessageID) {}
             
-            cxstring mDestination;
-            cxstring mMessageText;
+            
+            SendMessage(const IDType dest, const cxstring& text) : Destination(std::to_string(dest)), MessageText(text) {}
+            
+            cxstring Destination;
+            cxstring MessageText;
+            cxopt<cxstring> ParseMode;
+            cxopt<bool> DisableWebPreview;
+            cxopt<bool> SilentMessage;
+            cxopt<int> ReplyMsgID;
             
             cxprops(SendMessage) (
-                                  property(mDestination, "chat_id"),
-                                  property(mMessageText, "text")
+                                  property(Destination, "chat_id"),
+                                  property(MessageText, "text"),
+                                  property(ParseMode, "parse_mode"),
+                                  property(DisableWebPreview, "disable_web_page_preview"),
+                                  property(SilentMessage, "disable_notification"),
+                                  property(ReplyMsgID, "reply_to_message_id")
             );
         };
     }

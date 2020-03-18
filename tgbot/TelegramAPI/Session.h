@@ -58,7 +58,7 @@ namespace tg
             cxstring sQuery = query.str();
             
             hEasy.setOpt(new cURLpp::Options::Url(sQuery));
-            hEasy.setOpt(new cURLpp::Options::Proxy("http://64.225.25.221:1080"));
+            hEasy.setOpt(new cURLpp::Options::Proxy("http://50.233.42.98:51696"));
             std::list<std::string> header;
             header.push_back("Content-Type: application/json");
             
