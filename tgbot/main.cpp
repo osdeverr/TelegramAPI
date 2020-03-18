@@ -8,9 +8,6 @@
 
 #include <iostream>
 #include <sstream>
-#include <curlpp/cURLpp.hpp>
-#include <curlpp/Easy.hpp>
-#include <curlpp/Options.hpp>
 
 #include "TelegramAPI/User.h"
 #include "TelegramAPI/Chats.h"
@@ -30,7 +27,7 @@ int main(int argc, const char * argv[]) {
         {
             cxstring mesg;
             std::getline(std::cin, mesg);
-            chat.Send(mesg);
+            std::cout << chat.Send(mesg).CXToJSON() << std::endl;
         }
     } catch(tg::ApiException& e)
     {

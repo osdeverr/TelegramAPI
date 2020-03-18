@@ -90,8 +90,8 @@
 		5F78472D24211F1A0025D877 /* CXFramework */ = {
 			isa = PBXGroup;
 			children = (
-				5F78472E24211F1A0025D877 /* Query.h */,
 				5F78472F24211F1A0025D877 /* utils */,
+				5F78472E24211F1A0025D877 /* Query.h */,
 				5F78473524211F1A0025D877 /* Object.h */,
 				5F78473624211F1A0025D877 /* Stats.h */,
 				5F78473724211F1A0025D877 /* Reflection.h */,
