@@ -7,6 +7,7 @@
 //
 
 #include <iostream>
+#include <fstream>
 #include <sstream>
 #include <thread>
 
@@ -18,14 +19,17 @@
 #include "TelegramAPI/GetUpdates.h"
 #include "TelegramAPI/SendMessage.h"
 
-constexpr char gkBotToken[] = "752829295:AAE2xJz7kTXdde4dbyPdfqW0mDaUWEvh4v8";
+constexpr char gkTokenFilename[] = "/Users/osdever/.tgapitoken";
 int main(int argc, const char * argv[]) {
     std::cout << "TGBot running" << std::endl;
     
     try
     {
         tg::Session& sess = tg::Session::Instance();
-        sess.Authorize(gkBotToken);
+        std::ifstream tokenFile(gkTokenFilename);
+        cxstring token;
+        std::getline(tokenFile, token);
+        sess.Authorize(token);
         auto chat = sess.Query(tg::Methods::GetChat("@pubgrouptgcx"));
         std::cout << chat.CXToJSON() << std::endl;
         std::cout << "TG JSON access: " << std::endl;
