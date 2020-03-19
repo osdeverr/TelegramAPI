@@ -37,7 +37,34 @@ namespace tg
     cxclass(Session)
     {
     public:
-        Session(const cxstring& token) : mToken(token)
+        static Session& Instance()
+        {
+            static Session inst;
+            return inst;
+        }
+        void Authorize(const cxstring& token)
+        {
+            mToken = token;
+        }
+        
+        template<class QueryType>
+        const typename QueryType::_ReturnClass Query(QueryType q)
+        {
+            cxstring params = q.CXToJSON();
+            std::stringstream ssquery;
+            ssquery << "https://api.telegram.org/bot";
+            ssquery << mToken << "/" << QueryType::_ApiFunction;
+            cxstring query = ssquery.str();
+            cxstring result = TGApiCall(query, params);
+            
+            auto response = ApiResponse<typename QueryType::_ReturnClass>::CXFromJSON(result);
+            if(response.ok())
+                return response.get();
+            else
+                throw ApiException(response.errcode(), response.errdesc());
+        }
+    private:
+        Session()
         {
             cURLpp::initialize();
         }
@@ -45,20 +72,14 @@ namespace tg
         {
             cURLpp::terminate();
         }
-        
-        template<class QueryType>
-        const typename QueryType::_ReturnClass Query(QueryType q)
+        const cxstring TGApiCall(const cxstring& query, const cxstring& params)
         {
             cURLpp::Easy hEasy;
             std::stringstream result;
-            std::stringstream query;
-            cxstring params = q.CXToJSON();
-            query << "https://api.telegram.org/bot";
-            query << mToken << "/" << QueryType::_ApiFunction;
-            cxstring sQuery = query.str();
             
-            hEasy.setOpt(new cURLpp::Options::Url(sQuery));
-            hEasy.setOpt(new cURLpp::Options::Proxy("http://50.233.42.98:51696"));
+            hEasy.setOpt(new cURLpp::Options::Url(query));
+            //hEasy.setOpt(new cURLpp::Options::Proxy("http://91.214.179.24:8080"));
+            //hEasy.setOpt(new cURLpp::Options::ProxyType(CURLPROXY_SOCKS5));
             std::list<std::string> header;
             header.push_back("Content-Type: application/json");
             
@@ -69,17 +90,8 @@ namespace tg
             hEasy.setOpt(new cURLpp::Options::PostFieldSize(params.size()));
             hEasy.perform();
             
-            auto response = ApiResponse<typename QueryType::_ReturnClass>::CXFromJSON(result.str());
-            if(response.ok())
-            {
-                typename QueryType::_ReturnClass ret = response.get();
-                ret._pSession = this;
-                return ret;
-            }
-            else
-                throw ApiException(response.errcode(), response.errdesc());
+            return result.str();
         }
-    private:
         cxstring mToken;
     };
 }

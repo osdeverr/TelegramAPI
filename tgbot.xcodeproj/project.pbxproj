@@ -28,6 +28,8 @@
 		5F07FCE92422A9140065D7DD /* Message.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Message.h; sourceTree = "<group>"; };
 		5F07FCEA2422A9230065D7DD /* ChatPhoto.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ChatPhoto.h; sourceTree = "<group>"; };
 		5F07FCEB2422A92E0065D7DD /* ChatPermissions.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ChatPermissions.h; sourceTree = "<group>"; };
+		5F07FCEE2423CFE20065D7DD /* Update.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Update.h; sourceTree = "<group>"; };
+		5F07FCEF2423D19D0065D7DD /* GetUpdates.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = GetUpdates.h; sourceTree = "<group>"; };
 		5F78472224211EEE0025D877 /* tgbot */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = tgbot; sourceTree = BUILT_PRODUCTS_DIR; };
 		5F78472524211EEE0025D877 /* main.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = main.cpp; sourceTree = "<group>"; };
 		5F78472E24211F1A0025D877 /* Query.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Query.h; sourceTree = "<group>"; };
@@ -60,6 +62,7 @@
 			isa = PBXGroup;
 			children = (
 				5F78474A242170FB0025D877 /* GetChat.h */,
+				5F07FCEF2423D19D0065D7DD /* GetUpdates.h */,
 				5F07FCE4242252180065D7DD /* SendMessage.h */,
 			);
 			name = Methods;
@@ -125,6 +128,7 @@
 				5F07FCEA2422A9230065D7DD /* ChatPhoto.h */,
 				5F07FCEB2422A92E0065D7DD /* ChatPermissions.h */,
 				5F07FCE92422A9140065D7DD /* Message.h */,
+				5F07FCEE2423CFE20065D7DD /* Update.h */,
 				5F78474924216C030025D877 /* Session.h */,
 			);
 			path = TelegramAPI;

@@ -15,7 +15,6 @@ namespace tg
     cxclass(ChatPermissions)
     {
     public:
-        TGAPI_CLASS;
         cxopt<bool> CanSendMessages;
         cxopt<bool> CanSendMedia;
         cxopt<bool> CanSendPolls;

@@ -8,8 +8,6 @@
 
 #ifndef SendMessage_h
 #define SendMessage_h
-#include "CXFramework/Object.h"
-#include "CXFramework/Reflection.h"
 #include "Internal.h"
 
 namespace tg

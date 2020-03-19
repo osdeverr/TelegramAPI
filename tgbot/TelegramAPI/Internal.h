@@ -13,9 +13,8 @@
 
 namespace tg {
     class Session;
-    typedef int64_t IDType;
+    typedef uint64_t IDType;
 }
 #define TGAPI_METHOD(funcname, returntype) static constexpr char _ApiFunction[] = funcname; typedef returntype _ReturnClass;
-#define TGAPI_CLASS tg::Session* _pSession
 
 #endif /* MethodsInternal_h */

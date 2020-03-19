@@ -9,6 +9,7 @@
 #ifndef Properties_h
 #define Properties_h
 #include <exception>
+#include <memory>
 #include "String.h"
 #include "utils/json.hpp"
 
@@ -149,6 +150,12 @@ namespace CX
             };
             template <class T>
             struct IsCXOptional<T,std::void_t<decltype(T::__CXOptional)>> : std::true_type {};
+            
+            template <class T,typename = std::void_t<>>
+            struct IsStdVector : std::false_type {
+            };
+            template<typename T, typename A>
+            struct IsStdVector<std::vector<T,A>> : std::true_type {};
         }
         
         class NullReferenceException : public std::exception
@@ -166,10 +173,11 @@ namespace CX
             using ValueType = T;
             
             Reference() : mPointer(nullptr) {}
-            Reference(const Reference& ref) { if(ref.Exists()) { Create(); Set(ref); } }
+            Reference(const Reference& ref) { mPointer = new T; if(ref.mPointer) *mPointer = *ref.mPointer; }
+            // ~Reference() { if(mPointer) delete mPointer; }
             // FIX MEMORY LEAKS HERE!
             
-            void Create() { if(!mPointer) mPointer = new T; }
+            void Create() { mPointer = new T; }
             bool Exists() const { return (mPointer != nullptr); }
             
             T& operator()() { if(mPointer) return *mPointer; else throw NullReferenceException(); }
@@ -180,7 +188,7 @@ namespace CX
             T* mPointer;
         };
         
-        // Optional fields for serialization: can be used as an ordinary value outside of
+        // Optional fields for serialization: can be used as an ordinary value. operator() to get the value explicitly
         template<class T>
         class Optional
         {
@@ -197,6 +205,7 @@ namespace CX
             void Set(const T& val) { mValue = val; mExists = true; }
             
             T& operator()() { return mValue; }
+            const T& operator()() const { return mValue; }
             operator T&() { return mValue; }
             operator const T&() const { return mValue; }
         private:
@@ -229,17 +238,53 @@ namespace CX
                         if(!value.Exists()) return;
                         using vtype = typename type::ValueType;
                         
-                        if constexpr(Reflection::Internal::IsCXReflectable<vtype>::value)
-                            j[name] = nlohmann::json::parse(Serialize<vtype>(value));
+                        if constexpr(Reflection::Internal::IsStdVector<vtype>::value)
+                        {
+                            using vectype = typename vtype::value_type;
+                            
+                            if constexpr(Reflection::Internal::IsCXReflectable<vectype>::value)
+                            {
+                                for(auto& val : value())
+                                    j[name].push_back(nlohmann::json::parse(Serialize<vectype>(val)));
+                            }
+                            else
+                            {
+                                for(auto& val : value())
+                                    j[name].push_back(val);
+                            }
+                        }
                         else
-                            j[name] = (vtype) value;
+                        {
+                            if constexpr(Reflection::Internal::IsCXReflectable<vtype>::value)
+                                j[name] = nlohmann::json::parse(Serialize<vtype>(value));
+                            else
+                                j[name] = (vtype) value;
+                        }
                     }
                     else
                     {
-                        if constexpr(Reflection::Internal::IsCXReflectable<type>::value)
-                            j[name] = nlohmann::json::parse(Serialize<type>(value));
+                        if constexpr(Reflection::Internal::IsStdVector<type>::value)
+                        {
+                            using vectype = typename type::value_type;
+                            
+                            if constexpr(Reflection::Internal::IsCXReflectable<vectype>::value)
+                            {
+                                for(auto& val : value)
+                                    j[name].push_back(nlohmann::json::parse(Serialize<vectype>(val)));
+                            }
+                            else
+                            {
+                                for(auto& val : value)
+                                    j[name].push_back((vectype) val);
+                            }
+                        }
                         else
-                            j[name] = value;
+                        {
+                            if constexpr(Reflection::Internal::IsCXReflectable<type>::value)
+                                j[name] = nlohmann::json::parse(Serialize<type>(value));
+                            else
+                                j[name] = value;
+                        }
                     }
                 } cxenum_end;
                 return j.dump(4);
@@ -268,17 +313,53 @@ namespace CX
                         {
                             using vtype = typename type::ValueType;
                             
-                            if constexpr(Reflection::Internal::IsCXReflectable<vtype>::value)
-                                value = (Deserialize<vtype>(j.at(name).dump()));
+                            if constexpr(Reflection::Internal::IsStdVector<vtype>::value)
+                            {
+                                using vectype = typename vtype::value_type;
+                                
+                                if constexpr(Reflection::Internal::IsCXReflectable<vectype>::value)
+                                {
+                                    for(auto& val : j.at(name))
+                                        value().push_back(Deserialize<vectype>(val.dump()));
+                                }
+                                else
+                                {
+                                    for(auto& val : j.at(name))
+                                        value().push_back(val.get<vectype>());
+                                }
+                            }
                             else
-                                value = (j.at(name).get<vtype>());
+                            {
+                                if constexpr(Reflection::Internal::IsCXReflectable<vtype>::value)
+                                    value = Deserialize<vtype>(j.at(name).dump());
+                                else
+                                    value = j.at(name).get<vtype>();
+                            }
                         }
                         else
                         {
-                            if constexpr(Reflection::Internal::IsCXReflectable<type>::value)
-                                value = Deserialize<type>(j.at(name).dump());
+                            if constexpr(Reflection::Internal::IsStdVector<type>::value)
+                            {
+                                using vectype = typename type::value_type;
+                                
+                                if constexpr(Reflection::Internal::IsCXReflectable<vectype>::value)
+                                {
+                                    for(auto& val : j.at(name))
+                                        value.push_back(Deserialize<vectype>(val.dump()));
+                                }
+                                else
+                                {
+                                    for(auto& val : j.at(name))
+                                        value.push_back(val.get<vectype>());
+                                }
+                            }
                             else
-                                value = j.at(name).get<type>();
+                            {
+                                if constexpr(Reflection::Internal::IsCXReflectable<type>::value)
+                                    value = Deserialize<type>(j.at(name).dump());
+                                else
+                                    value = j.at(name).get<type>();
+                            }
                         }
                     } catch(...)
                     {

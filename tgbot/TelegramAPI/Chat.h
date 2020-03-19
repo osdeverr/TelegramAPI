@@ -24,7 +24,6 @@ namespace tg
     cxclass(Chat)
     {
     public:
-        TGAPI_CLASS;        
         cxopt<IDType> ID;
         cxopt<cxstring> Type;
         cxopt<cxstring> Title;
@@ -43,7 +42,7 @@ namespace tg
         
         const Message Send(const cxstring& message)
         {
-            return _pSession->Query(Methods::SendMessage(ID, message));
+            return Session::Instance().Query(Methods::SendMessage(ID, message));
         }
         
         cxprops(Chat) (

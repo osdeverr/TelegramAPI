@@ -18,14 +18,13 @@ namespace tg
     cxclass(MessageEntity)
     {
     public:
-        TGAPI_CLASS;
-        cxstring Type;
-        int Offset;
-        int Length;
+        cxopt<cxstring> Type;
+        cxopt<int> Offset;
+        cxopt<int> Length;
         
-        cxstring LinkURL;
-        User MentionedUser;
-        cxstring CodeLanguage;
+        cxopt<cxstring> LinkURL;
+        cxopt<User> MentionedUser;
+        cxopt<cxstring> CodeLanguage;
         
         cxprops(MessageEntity) (
                                 property(Type, "type"),
@@ -40,7 +39,6 @@ namespace tg
     cxclass(Message)
     {
     public:
-        TGAPI_CLASS;
         cxopt<int> ID;
         cxopt<time_t> Date;
         cxref<Chat> Owner;
@@ -60,8 +58,8 @@ namespace tg
         
         cxopt<cxstring> Text;
         
-        std::vector<MessageEntity> Entities;
-        std::vector<MessageEntity> CaptionEntities;
+        cxopt<std::vector<MessageEntity>> Entities;
+        cxopt<std::vector<MessageEntity>> CaptionEntities;
         
         cxprops(Message) (
                           property(Text, "text"),
@@ -77,9 +75,9 @@ namespace tg
                           property(FwdDate, "forward_date"),
                           property(EditDate, "edit_date"),
                           property(MediaGroupID, "media_group_id"),
-                          property(AuthorSignature, "author_signature")/*,
+                          property(AuthorSignature, "author_signature"),
                           property(Entities, "entities"),
-                          property(CaptionEntities, "caption_entities")*/
+                          property(CaptionEntities, "caption_entities")
         );
     };
 }

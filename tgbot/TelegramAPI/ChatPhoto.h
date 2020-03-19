@@ -15,7 +15,6 @@ namespace tg
     cxclass(ChatPhoto)
     {
     public:
-        TGAPI_CLASS;
         cxopt<cxstring> Small, SmallUnique;
         cxopt<cxstring> Big, BigUnique;
         
