@@ -12,42 +12,51 @@
 #include "String.h"
 #include "Methods.h"
 #include <vector>
+#include <type_traits>
 
 namespace CX
 {
-    class Object
+    namespace Chimera
     {
-    public:
-        using Type = String;
+        class Object
+        {
+        public:
+            using Type = String;
+            
+            virtual ~Object() {}
+            virtual Type GetType() const = 0;
+            virtual String ToString() const = 0;
+            virtual bool Equals(const Object&) const = 0;
+            
+            template<class DerivedObject>
+            DerivedObject* Convert() { return dynamic_cast<DerivedObject*>(this); }
+        };
         
-        virtual ~Object() {}
-        virtual Type GetType() const = 0;
-        virtual String ToString() const = 0;
-        virtual bool Equals(const Object&) const = 0;
-        
-        template<class DerivedObject>
-        DerivedObject* Convert() { return dynamic_cast<DerivedObject*>(this); }
-    };
+        namespace Internal
+        {
+            template<class T>
+            class ObjectImpl : public Object
+            {
+                Type GetType() const { return typeid(T).name(); }
+                String ToString() const { return GetType(); }
+                bool Equals(const Object& obj) const { return this->GetType() == obj.GetType(); }
+            };
+        }
+    }
 }
 
 
 // Macros to create CX-capable classes
 
 #define cxclass(RealType) \
-class CXGen_ObjectImpl_##RealType : public CX::Object { \
-public: \
-CX::Object::Type GetType() const { return CXSTRINGIFY(RealType); } \
-CX::String ToString() const { return CXSTRINGIFY(RealType); } \
-bool Equals(const CX::Object& obj) const { return this->GetType() == obj.GetType(); } \
-}; \
-class RealType : public CXGen_ObjectImpl_##RealType, public CX::Stats::Tracker<RealType>
+class RealType : public CX::Chimera::Internal::ObjectImpl<RealType>, public CX::Stats::Tracker<RealType>
 
 #define cxclass_templated(RealType, ...) \
-class CXGen_ObjectImpl_##RealType : public CX::Object { \
+class CXGen_ObjectImpl_##RealType : public CX::Chimera::Object { \
 public: \
-CX::Object::Type GetType() const { return CXSTRINGIFY(RealType); } \
+CX::Chimera::Object::Type GetType() const { return CXSTRINGIFY(RealType); } \
 CX::String ToString() const { return CXSTRINGIFY(RealType); } \
-bool Equals(const CX::Object& obj) const { return this->GetType() == obj.GetType(); } \
+bool Equals(const CX::Chimera::Object& obj) const { return this->GetType() == obj.GetType(); } \
 }; \
 __VA_ARGS__ class RealType : public CXGen_ObjectImpl_##RealType
 
@@ -56,6 +65,6 @@ __VA_ARGS__ class RealType : public CXGen_ObjectImpl_##RealType
 
 #define as(class) .Convert<class>()
 
-typedef CX::Object& cxobject;
+typedef CX::Chimera::Object& cxobject;
 
 #endif /* Object_h */

@@ -8,6 +8,7 @@
 
 #include <iostream>
 #include <sstream>
+#include <thread>
 
 #include "TelegramAPI/CXFramework/Query.h"
 #include "TelegramAPI/User.h"
@@ -20,7 +21,8 @@
 constexpr char gkBotToken[] = "752829295:AAE2xJz7kTXdde4dbyPdfqW0mDaUWEvh4v8";
 int main(int argc, const char * argv[]) {
     std::cout << "TGBot running" << std::endl;
-     
+    
+    try
     {
         tg::Session& sess = tg::Session::Instance();
         sess.Authorize(gkBotToken);
@@ -35,26 +37,39 @@ int main(int argc, const char * argv[]) {
         }
         else
             std::cout << "No Pinned Message" << std::endl;
-         
-        int64_t lastId = 0;
-        while(true)
-        {
-            auto req = tg::Methods::GetUpdates(lastId + 1, 10);
-            auto updates = sess.Query(req);
-            for(auto upd : updates)
+        
+        // lp worker
+        std::thread t([]() {
+            tg::Session& sess = tg::Session::Instance();            
+            int64_t lastId = 0;
+            while(true)
             {
-                if(upd.ID() > lastId) 
-                    lastId = upd.ID();
-                std::cout << upd.CXToJSON() << std::endl;
-                
-                if(upd.MessageUpdate.Exists())
+                auto updates = sess.Query(tg::Methods::GetUpdates(lastId + 1));
+                for(auto upd : updates)
                 {
-                    auto mesg = upd.MessageUpdate();
-                    if(mesg.Text() == "/help") 
-                        mesg.Owner().Send("No commands yet -.-");
+                    if(upd.ID() > lastId)
+                        lastId = upd.ID();
+                    
+                    if(upd.MessageUpdate.Exists())
+                    {
+                        auto mesg = upd.MessageUpdate();
+                        if(mesg.Text() == "/help")
+                            mesg.Owner().Send("No commands yet -.-");
+                    }
                 }
             }
+        });
+        
+        while(true)
+        {
+            cxstring text;
+            std::cout << "@" << chat.Username() << ": ";
+            std::getline(std::cin, text);
+            chat.Send(text);
         }
+    } catch(tg::ApiException& e)
+    {
+        std::cerr << "Caught TGAPI exception - " << e.what() << std::endl; 
     }
     
     return 0;

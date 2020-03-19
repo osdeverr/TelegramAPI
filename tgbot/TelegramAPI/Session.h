@@ -11,6 +11,7 @@
 #include <exception>
 #include <string>
 #include <sstream>
+#include <mutex>
 #include <curlpp/cURLpp.hpp>
 #include <curlpp/Easy.hpp>
 #include <curlpp/Options.hpp>
@@ -33,6 +34,11 @@ namespace tg
         cxstring mError;
     };
     
+    cxclass_templated(HandlerList, template<class Function>)
+    {
+        
+    };
+    
     // ONE PER APP: make it CRYSTAL CLEAR
     cxclass(Session)
     {
@@ -50,6 +56,8 @@ namespace tg
         template<class QueryType>
         const typename QueryType::_ReturnClass Query(QueryType q)
         {
+            std::lock_guard<std::mutex> lg(mQueryLock);
+            
             cxstring params = q.CXToJSON();
             std::stringstream ssquery;
             ssquery << "https://api.telegram.org/bot";
@@ -93,6 +101,7 @@ namespace tg
             return result.str();
         }
         cxstring mToken;
+        std::mutex mQueryLock;
     };
 }
 
